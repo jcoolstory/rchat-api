@@ -17,6 +17,7 @@ class ChatRoom(BaseModel):
     id: int
     name: str
     description: str
+    type: str
     users: List[str] = []
     owner: str
 
@@ -26,6 +27,7 @@ class CreateChatRoom(BaseModel):
     description: str
     users: List[str] = []
     owner: str
+    type: str
 
 class ChatMessage(BaseModel) :
     roomId: str

@@ -7,4 +7,4 @@ def ResponseModel(data, message="ok"):
     }
 
 def ErrorResponseModel(error, code, message):
-    return {"error": error, "code": code, "message": message}
+    return {"error": error, "code": code, "message": message, "data": None}

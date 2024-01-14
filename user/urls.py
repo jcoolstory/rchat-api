@@ -1,5 +1,5 @@
 from typing import Union, List
-from fastapi import Depends, FastAPI, APIRouter
+from fastapi import Depends, FastAPI, APIRouter, HTTPException
 from datetime import datetime
 from common.response import ErrorResponseModel, ResponseModel
 from user.auth_origin import create_access_token, hash_password, verify_password
@@ -21,9 +21,9 @@ async def login(data:UserLoginSchema):
     user = await database.get_user_info(data.id)
     if user and verify_password(data.password, user["password"]):
         access_token = create_access_token(data={"sub": data.id} )
-        return ResponseModel({"result":"success", "accessToken": access_token})
+        return ResponseModel({"result":"success", "access_token": access_token, "token_type": "bearer"})
 
-    return ErrorResponseModel(error=500, code=200, message="로그인정보가 일치하지 않습니다.")
+    raise HTTPException(status_code=401, detail={"code": 401, "message": "로그인정보가 일치하지 않습니다."})
 
 @router.post("/api/token")
 async def login2(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
@@ -54,6 +54,11 @@ async def join(data:UserJoinSchema):
 async def update_user(id: str, data: UserUpdateSchema):
     result = await database.update_user(id,data)
     return ResponseModel(result.modified_count)
+
+@router.get("/api/userme")
+async def get_user_list(user: LOGIN_REQUIRE):
+    return ResponseModel(user)
+
 
 @router.get("/api/admin/user")
 async def get_user_list(user: LOGIN_REQUIRE):

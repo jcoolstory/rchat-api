@@ -10,7 +10,7 @@ user_collection = db.get_collection("user")
 
 
 # DB 에서 User 정보 가져오기
-async def get_user_info(id: str):
+async def get_user_info(id: str) -> UserSchema: 
     user_info = await user_collection.find_one({"id":id})
     return user_info
     
