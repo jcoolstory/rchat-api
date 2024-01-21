@@ -46,7 +46,7 @@ class ChatManager:
             
             await create_message(message)
             await manager.broadcast_target(trData.model_dump_json(), targets)
-        elif trData.type == TrType.private_message:
+        elif trData.type == TrType.direct_message:
             user = trData.content["to"]
             sock = manager.get_socket_by_id(user)
             if sock:

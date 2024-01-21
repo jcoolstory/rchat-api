@@ -7,7 +7,7 @@ class TrType:
     cmd = "cmd"
     enter = "enter_room"
     exit = "exit_room"
-    private_message = "pm"
+    direct_message = "dm"
 
 class MessageType:
     text = "text"
