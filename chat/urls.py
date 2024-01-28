@@ -6,7 +6,7 @@ from common.response import ErrorResponseModel, ResponseModel
 from common.time import current_milli_time
 from user.auth_origin import LOGIN_REQUIRE
 from .ConnectionManager import manager
-from .ChatManager import ChatManager,chatHistory_data, get_room
+from .ChatManager import ChatManager
 from chat import database
 
 router = APIRouter(
