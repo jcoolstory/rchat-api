@@ -1,29 +1,11 @@
 from chat.database import create_message, retrieve_room_detail
 from common.time import current_milli_time
-from .ConnectionManager import ConnectionManager
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+from fastapi import WebSocket, WebSocketDisconnect
 from .ConnectionManager import manager
 import json, os
 from chat.models import ChatRoom, RequestChatMessage, TrData, TrType
 
 curpath = os.path.abspath(".")
-mock_chat_room_path = os.path.join(curpath, "chat/mocks/rooms.json")
-mock_chat_chatHistory_path = os.path.join(curpath, "chat/mocks/chatHistory.json")
-
-chat_room_data = {}
-
-with open(mock_chat_room_path) as f:
-    chat_room_data = json.load(f)
-
-with open(mock_chat_chatHistory_path) as f:
-    chatHistory_data = json.load(f)
-
-
-def get_room(room_id):
-    find_room = [ x for x in chat_room_data if x['id'] == room_id ] 
-    if  find_room:
-        return find_room[0]
-    return None
 
 class ChatManager:
     def __init__(self):
@@ -46,7 +28,7 @@ class ChatManager:
             
             await create_message(message)
             await manager.broadcast_target(trData.model_dump_json(), targets)
-        elif trData.type == TrType.private_message:
+        elif trData.type == TrType.direct_message:
             user = trData.content["to"]
             sock = manager.get_socket_by_id(user)
             if sock:

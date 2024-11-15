@@ -3,7 +3,7 @@ from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from chat.urls import router as chat_router
 from user.urls import router as user_router
-
+from chart.urls import router as chart_router
 app = FastAPI()
 
 app.add_middleware(
@@ -16,6 +16,7 @@ app.add_middleware(
 
 app.include_router(chat_router)
 app.include_router(user_router)
+app.include_router(chart_router)
 
 
 @app.get("/")

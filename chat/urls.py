@@ -1,11 +1,12 @@
 from typing import Union, List
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect, APIRouter
+from fastapi import FastAPI, WebSocket, APIRouter
 from chat.models import ChatRoom, ChatRoom, CreateChatRoom, RequestChatMessage
 
-from common.response import ResponseModel
+from common.response import ErrorResponseModel, ResponseModel
 from common.time import current_milli_time
+from user.auth_origin import LOGIN_REQUIRE
 from .ConnectionManager import manager
-from .ChatManager import ChatManager,chatHistory_data, get_room
+from .ChatManager import ChatManager
 from chat import database
 
 router = APIRouter(
@@ -20,23 +21,30 @@ async def websocket_endpoint(websocket: WebSocket, room_id: str):
 @router.get("/api/chatroom")
 async def get_chat_rooms():
     room = await database.retrieve_room()
-    if room:
-        return room
+    return ResponseModel(room)
 
 @router.post("/api/chatroom")
 async def create_chat_room(room: CreateChatRoom):
+    if room.users:
+        room.users = [room.owner] + room.users
+    else:
+        room.users = [room.owner]
+    
     result = await database.create_room(room)
-    room.users = [room.owner] + room.users
     if result:
-        return ResponseModel({"id":result})
+        return {"id":result}
     return []
 
 @router.api_route("/api/chatroom/{room_id}")
 async def chat_rooms(room_id:str):
-    return await database.retrieve_room_detail(room_id)
+    result = await database.retrieve_room_detail(room_id)
+    if result:
+        return ResponseModel(result)
+    else:
+        return ErrorResponseModel(error=404,code=404, message="존재하지 않는 대화방입니다")
     
 @router.get("/api/chatroom/{room_id}/history")
-async def chat_rooms(room_id: str):
+async def get_chat_history(room_id: str):
     result = await database.retrieve_message(room_id)
     return ResponseModel(result)
     
@@ -62,3 +70,25 @@ async def chat_rooms(room_id: str):
     else :
         return []
     
+
+@router.get("/api/admin/chatroom")
+async def get_user_list(user: LOGIN_REQUIRE):
+    retrieve_user = await database.retrieve_user()
+    if retrieve_user:
+        return ResponseModel(retrieve_user, "Student data retrieved successfully")
+
+
+@router.get("/api/admin/chatroom/{id}")
+async def get_user_list(id:str, user: LOGIN_REQUIRE):
+    retrieve_user = await database.get_user_info(id)
+    if retrieve_user:
+        return ResponseModel(retrieve_user, "Student data retrieved successfully")
+
+
+@router.delete("/api/admin/chatroom/{id}")
+async def delete_room(id:str, user: LOGIN_REQUIRE):
+    delete_room = await database.delete_room(id)
+    if delete_room:
+        return ResponseModel(delete_room, "Student data retrieved successfully")
+    else:
+        return ResponseModel(delete_room, "Student data retrieved successfully")
