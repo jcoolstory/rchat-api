@@ -18,6 +18,13 @@ source venv/bin/activate  # mac venv 실행
 uvicorn main:app --reload --host 0.0.0.0  
 ```
 
+>몽고디비 실행
+
+```sh
+cd environment/docker/mongodb
+docker-compose up -d
+```
+
 
 ### swagger url
 
